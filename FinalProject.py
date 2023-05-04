@@ -13,7 +13,9 @@ def fileRead(filePath): #Define a function called fileRead to read the file and 
             proSeq[title] = ""
         else:
             proSeq[title] += lines[i].rstrip().upper()
+    print(proSeq)
     return proSeq
+fileRead('/Users/kaizennathani/Downloads/sequenceS.fasta')
 
 def forFram(seqs,minORF,n): #Define a function with argument sequences, minORF, and a intege to perfrom the ORF 1~3 reading and return the ORF sequences and their positions.
     framL = []
@@ -75,19 +77,19 @@ def revFram(seqs,minORF,n):
 
 def main():
     filePath = input('Please enter the name or the path of the File:') #Get the name or path of the file and store as a variable.
-    
+
     proSeq = fileRead(filePath)
 
     title = list(proSeq.keys())
     seqs = proSeq.values()
-    
+
     #minORF input
     change = input('Do you wants to change the minimum ORF to search for (Default: 50)? (Y/N)')
     if change == 'Y':
         minORF = int(input('Enter the minimum ORF to search for:'))
     else:
         minORF = 50
-    
+
     #Run & Output
     for n in range(6):
         if n < 3:
