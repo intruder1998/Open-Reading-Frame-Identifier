@@ -46,6 +46,35 @@ def framsRead(seqs,minORF,n): #Define a function with argument sequences, minORF
             pos.append(0)
     return framL, pos
 
+def orf(seq,minORF,n,allorf):
+    orf=''
+    start = False
+    for i in range(n-1, len(seq),3):
+        codon = seq[i:i+3]
+        print(codon)
+        print(orf)
+        if codon == 'ATG':
+            orf+=codon
+            print('start')
+            start =True
+        elif codon == 'TAA' or codon =='TGA' or codon == 'TAG':
+            print('stop')
+            orf+=codon
+            if len(orf)>=minORF:
+                allorf.append(orf)
+                print(allorf)
+                start =False
+                print(orf)
+                orf=''
+            else:
+                orf=''
+        elif start:
+            print(codon)
+            orf+=codon
+            print(orf)
+    print(allorf)
+
+
 def main():
     filePath = input('Please enter the name or the path of the File:') #Get the name or path of the file and store as a variable.
     
