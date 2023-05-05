@@ -7,7 +7,7 @@ Group members: Kaizen, Taoyu, Yijun
 #Import the required package
 import re
 
-def seq_reader(file):
+def seq_reader():
     """
     Function 1: seq_reader
     :param file:
@@ -16,23 +16,44 @@ def seq_reader(file):
     Author: Kaizen
     Date created: 04/25/2023
     """
-    #Opens the sequence file in read mode
-    f = open(file)
-    #Defines the empty dictionary variable to store and return sequence and header
-    sequence ={}
-    header = ""  # To store Sequence Header
-    #Exclude the header line when returning the sequence by checking for '>' in lines
-    for line in f:
-        if not line.startswith('>'):
-            #Appending sequence of each line in the sequence variable converting it into uppercase
-            sequence[header] += line.strip().upper()
-        elif line.startswith('>'):
-            header = line.strip()
-            sequence[header] = ""
-    #Closing the file
-    f.close()
-    #Return the sequence without header
+    #Ask user for File name or File path for the FASTA file
+    file = input('Please enter the name or the path of the FASTA sequence File:')
+    #Flag variable to check if the file exist or not
+    file_flag=False
+    #Sequence dictionary to store FASTA sequence and header
+    sequence = {}
+    #Open sequence file in try and except block to handle IO error
+    while not file_flag:
+        try:
+            # Opens the sequence file in read mode
+            f = open(file)
+            print('STATUS : File Found. Extracting the FASTA sequence...')
+            #If file opened and exists then proceed with extracting sequence
+            file_flag=True
+        except IOError:
+            #If file name not found print the error message and retry
+            print('ERROR: The file path entered does not exist. Please enter again')
+            file = input('Please enter the name or the path of the FASTA sequence File:')
+
+    #If file found proceed with extracting the FASTA sequence
+    if file_flag:
+        #Defines the empty dictionary variable to store and return sequence and header
+        header = ""  # To store Sequence Header
+        #Exclude the header line when returning the sequence by checking for '>' in lines
+        for line in f:
+            if not line.startswith('>'):
+                #Appending sequence of each line in the sequence variable converting it into uppercase
+                sequence[header] += line.strip().upper()
+            elif line.startswith('>'):
+                header = line.strip()
+                sequence[header] = ""
+        #Closing the file
+        f.close()
+    #Printing function output status
+    print(f'STATUS : FASTA sequence extracted from file.\nNumber of Sequences found: {len(sequence)} ')
+    # Return the sequence with header dictionary
     return sequence
+
 
 def reverse_comp(seq):
     """
@@ -67,42 +88,38 @@ def framsRead(seqs,minORF,n):
     #Defining the LIST variables to store ORF sequence and their positions in the sequence
     framL = []
     pos = []
-    #For each sequence in list of sequences in the Fasta file
-    for dna in seqs:
-        #If the frame is specified 4-6 first reverse compliment the sequence
-        if n > 3:
-            dna = reverse_comp(dna)
-            n = n-3
-        #Defining variables to store the orf sequence for each input sequence and frame
-        allFram = []
-        fram = ""
-        #Flag operator variable to indicate if start codon is found or not
-        starts = False
-        #Checks for each codon if it is a START or STOP. If start then stores until STOP codon identified
-        for i in range(n-1, len(dna), 3):
-            codon = dna[i:i+3]
-            if codon == 'ATG':
-                fram += codon
-                starts = True
-            elif (codon == 'TAA' or codon == 'TAG' or codon == 'TGA') and starts:
-                fram += codon
-                allFram.append(fram)
-                starts = False
-                fram = ""
-            elif starts:
-                fram += codon
-        """Sorting all the identified ORF sequence in reverse and check if maximum 
-        orf sequence is more than minimium ORF length specified"""
-        allFram.sort(key=len, reverse=True)
+    #If the frame is specified 4-6 first reverse compliment the sequence
+    if n > 3:
+        seqs = reverse_comp(seqs)
+        n = n-3
+    #Defining variables to store the orf sequence for each input sequence and frame
+    allFram = []
+    fram = ""
+    #Flag operator variable to indicate if start codon is found or not
+    starts = False
+    #Checks for each codon if it is a START or STOP. If start then stores until STOP codon identified
+    for i in range(n-1, len(seqs), 3):
+        codon = seqs[i:i+3]
+        if codon == 'ATG':
+            fram += codon
+            starts = True
+        elif (codon == 'TAA' or codon == 'TAG' or codon == 'TGA') and starts:
+            fram += codon
+            allFram.append(fram)
+            starts = False
+            fram = ""
+        elif starts:
+            fram += codon
+    """Sorting all the identified ORF sequence in reverse and check if maximum 
+    orf sequence is more than minimium ORF length specified"""
+    allFram.sort(key=len, reverse=True)
+    if len(allFram)>0:
         if len(allFram[0]) >= minORF:
             #Append ORF sequence
             framL.append(allFram[0])
             #Calculate the position append to pos list
-            pos.append(re.search(allFram[0],dna).start() + 1)
-        else:
-            framL.append('0')
-            pos.append(0)
-    #Return the ORF sequence and their corresponding sequence
+            pos.append(re.search(allFram[0],seqs).start() + 1)
+        #Return the ORF sequence and their corresponding sequence
     return framL, pos
 
 
@@ -114,16 +131,18 @@ def output_display(title,fram,pos,n):
     :param pos: Position of Start codon of ORF sequence
     :param n: Frame Number
     :return: It prints the output in required format
+    Author: Yijun
     """
-    #For each sequence
-    for index in range(len(title)):
-        #If the list has an ORF sequence
-        if fram[index] != '0':
-            #Printing output header in required format
-            print(f"{title[index]}|FRAME={n + 1}|POS={pos[index]}|LEN={len(fram[index])}")
-            #Printing the ORF sequence in required format
-            for i in range(0, len(fram[index]), 3 * 15):
-                print(' '.join(fram[index][i:i + 3 * 15][j:j + 3] for j in range(0, min(3 * 15, len(fram[index]) - i), 3)))
+    #Assigning position sign based on frame
+    sign=''
+    if n > 3:
+        sign = '-'
+    for index in range(0,len(fram),1):
+        #Printing output header in required format
+        print(f"{title}|FRAME={n + 1} POS={sign}{pos[index]} LEN={len(fram[index])}")
+        #Printing the ORF sequence in required format
+        for i in range(0, len(fram[index]), 3 * 15):
+            print(' '.join(fram[index][i:i + 3 * 15][j:j + 3] for j in range(0, min(3 * 15, len(fram[index]) - i), 3)))
 
 
 def main():
@@ -131,16 +150,15 @@ def main():
     Main Function
     Authors: Kaizen, Yijun
     """
-    #Asking the user for the FASTA sequence file path
-    filePath = input('Please enter the name or the path of the File:')
+
     #Reading the fasta sequence file using seq_reader() function
-    proSeq = seq_reader(filePath)
+    proSeq = seq_reader()
 
     #Extracting all the sequence headers in title variable
     title = list(proSeq.keys())
     #Extracting all the sequences in seq variable
-    seqs = proSeq.values()
-    
+    seqs = list(proSeq.values())
+
     #Ask user to chaconfigure nge the minimum ORF sequence length. Default =50
     change = input('Do you wants to change the minimum ORF to search for (Default: 50)? (Y/N)')
     #If user wants to change ORF collect the input if not set minORF=50
@@ -148,13 +166,20 @@ def main():
         minORF = int(input('Enter the minimum ORF to search for:'))
     else:
         minORF = 50
+    print(f'The minimum ORF sequence length is set to: {minORF}')
     
     #RUN AND OUTPUT
-    for n in range(6):
-        #Call the framsRead function to identify ORF sequences and their positions in each frame
-        fram, pos = framsRead(seqs,minORF,n+1)
-        #Call the output display function to return the output in required format
-        output_display(title,fram,pos,n)
+    #For each sequence present in Fasta file
+    for ind in range(0,len(seqs)):
+        #For each frame 1-
+        for n in range(6):
+            #Call the framsRead function to identify ORF sequences and their positions in each frame
+            fram, pos = framsRead(seqs[ind],minORF,n+1)
+            #If ORF sequence returned then print the output in required format
+            if len(fram)>0:
+                #Call the output display function to return the output in required format
+                output_display(title[ind],fram,pos,n)
+
 
 #Calling main function
 main()
