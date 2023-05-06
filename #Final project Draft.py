@@ -44,7 +44,7 @@ def seq_reader():
             if not line.startswith('>'):
                 #Appending sequence of each line in the sequence variable converting it into uppercase
                 sequence[header] += line.strip().upper()
-            elif line.startswith('>'):
+            else:
                 header = line.strip()
                 sequence[header] = ""
         #Closing the file
