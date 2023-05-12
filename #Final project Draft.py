@@ -83,7 +83,7 @@ def framsRead(seqs,minORF,n):
     :param minORF: Minimum length to identify ORF sequence
     :param n: Frame number
     :return: Returns the ORF sequence and their corresponding positions in the sequence
-    Authors: Yijun, Kaizen and Toayu
+    Authors: Yijun, Kaizen and Taoyu
     """
     #Defining the LIST variables to store ORF sequence and their positions in the sequence
     framL = []
