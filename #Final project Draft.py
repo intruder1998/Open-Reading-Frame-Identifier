@@ -2,6 +2,7 @@
 Practical Computer Concepts of Bioinformatics
 Final Project draft
 Group members: Kaizen, Taoyu, Yijun
+Date created: 04/25/2023
 """
 
 #Import the required package
@@ -14,7 +15,6 @@ def seq_reader():
     :return: Dictionary of Header:sequence
     Usage: To read FASTA sequence file from computer folder and return it as a dictionary for further use
     Author: Kaizen
-    Date created: 04/25/2023
     """
     #Ask user for File name or File path for the FASTA file
     file = input('Please enter the name or the path of the FASTA sequence File:')
@@ -83,7 +83,7 @@ def framsRead(seqs,minORF,n):
     :param minORF: Minimum length to identify ORF sequence
     :param n: Frame number
     :return: Returns the ORF sequence and their corresponding positions in the sequence
-    Authors: Yijun, Kaizen and Toayu
+    Authors: Yijun
     """
     #Defining the LIST variables to store ORF sequence and their positions in the sequence
     framL = []
@@ -131,7 +131,7 @@ def output_display(title,fram,pos,n):
     :param pos: Position of Start codon of ORF sequence
     :param n: Frame Number
     :return: It prints the output in required format
-    Author: Yijun
+    Author: Kaizen
     """
     #Assigning position sign based on frame
     sign=''
@@ -148,7 +148,7 @@ def output_display(title,fram,pos,n):
 def main():
     """
     Main Function
-    Authors: Kaizen, Yijun
+    Authors: Kaizen
     """
 
     #Reading the fasta sequence file using seq_reader() function
